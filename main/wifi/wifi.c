@@ -17,7 +17,15 @@ extern char IPV4ADDR[20];
 extern char GATEWAY[20];
 extern char RSSI[10];//信号强度
 extern void show_wifi_info(void);
-extern void show_wifi_fail(void);
+extern void show_wifi_fail(int reason_id);
+
+typedef enum{
+    OTHER_REASON = 0,
+    AUTH_FAILED,
+    FOURWAY_TIMEOUT,
+    NOAP_FOUND,
+    HANDSHAKE_TIMEOUT
+} wifi_fail_reason_t;
 
 //扫描任务，wifi扫描需要时间，所以设置为任务
 void wifi_scan_task(void *pt)
@@ -77,22 +85,23 @@ static void run_on_event(void* arg, esp_event_base_t event_base, int32_t event_i
         if (event->reason == WIFI_REASON_AUTH_FAIL) {
             ESP_LOGI(TAG, "Authentication failed");
             //密码错误，跳转第三屏幕，显示信息
-            show_wifi_fail();
+            show_wifi_fail(AUTH_FAILED);
         }else if (event->reason == WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT){
-            ESP_LOGI(TAG, "HANDSHAKE_TIMEOUT");
-            show_wifi_fail();
+            ESP_LOGI(TAG, "4WAY_HANDSHAKE_TIMEOUT");
+            show_wifi_fail(FOURWAY_TIMEOUT);
         }else if (event->reason == WIFI_REASON_NO_AP_FOUND){
             ESP_LOGI(TAG, "NO_AP_FOUND");
-            show_wifi_fail();
+            show_wifi_fail(NOAP_FOUND);
         }else if (event->reason == WIFI_REASON_HANDSHAKE_TIMEOUT){
             ESP_LOGI(TAG, "HANDSHAKE_TIMEOUT");
-            show_wifi_fail();
+            show_wifi_fail(HANDSHAKE_TIMEOUT);
         }else {
             ESP_LOGI(TAG, "Other disconnect reason, restarting WiFi module");
             // ESP_ERROR_CHECK(esp_wifi_stop());
             // vTaskDelay(1000 / portTICK_PERIOD_MS); // 延迟1秒
             // ESP_ERROR_CHECK(esp_wifi_start());
             // ESP_ERROR_CHECK(esp_wifi_connect());
+            show_wifi_fail(OTHER_REASON);
         }
     }else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         wifi_connected = 1;

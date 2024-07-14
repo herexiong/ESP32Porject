@@ -30,7 +30,7 @@ void ui_Screen3_screen_init(void)
     lv_obj_set_width(ui_Srceen3BTNLabel1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Srceen3BTNLabel1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Srceen3BTNLabel1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Srceen3BTNLabel1, "result");
+    lv_label_set_text(ui_Srceen3BTNLabel1, "OK");
 
     ui_Screen3WiFiInfoPanel = lv_obj_create(ui_Screen3);
     lv_obj_set_width(ui_Screen3WiFiInfoPanel, 300);
@@ -89,12 +89,21 @@ void show_wifi_info(void){
     lv_label_set_text(ui_Screen3WiFiINFOLabel2, GATEWAY);
 }
 
-void show_wifi_fail(void){
+char fail_reason[][50] = {
+    "Reason: Other disconnect reason",
+    "Reason: 4WAY_HANDSHAKE_TIMEOUT",
+    "Reason: Authentication failed",
+    "Reason: NO_AP_FOUND",
+    "Reason: HANDSHAKE_TIMEOUT"
+};
+
+void show_wifi_fail(int reason_id){
     lv_obj_clear_flag(ui_Screen3ResultBTN1, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_Screen3WiFiInfoPanel, LV_OBJ_FLAG_HIDDEN);     /// Flags    
-    lv_obj_add_flag(ui_Screen3WiFiPWD, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_Screen3WiFiPWD, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_add_flag(ui_Screen3WiFiINFOLabel1, LV_OBJ_FLAG_HIDDEN);     /// Flags    
     lv_obj_add_flag(ui_Screen3WiFiINFOLabel2, LV_OBJ_FLAG_HIDDEN);     /// Flags    
 
-    lv_label_set_text(ui_Screen3WiFiSSID,"connected filed");
+    lv_label_set_text(ui_Screen3WiFiSSID,"connected failed");
+    lv_label_set_text(ui_Screen3WiFiPWD,fail_reason[reason_id]);
 }
